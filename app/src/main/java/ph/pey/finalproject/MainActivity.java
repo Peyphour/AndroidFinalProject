@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -37,6 +38,7 @@ import java.util.Locale;
 
 import ph.pey.finalproject.fragment.CreateMatchFragment;
 import ph.pey.finalproject.sql.AppDatabase;
+import ph.pey.finalproject.sql.MatchEntity;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     private AppDatabase db;
 
     private LatLng lastLocation;
+    private CreateMatchFragment currentMatchFragment;
 
 
     @Override
@@ -64,8 +67,8 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                CreateMatchFragment fragment = CreateMatchFragment.newInstance();
-                fragmentTransaction.replace(R.id.main_content_layout, CreateMatchFragment.newInstance());
+                currentMatchFragment = CreateMatchFragment.newInstance();
+                fragmentTransaction.replace(R.id.main_content_layout, currentMatchFragment);
                 fragmentTransaction.commit();
             }
         });
@@ -183,6 +186,7 @@ public class MainActivity extends AppCompatActivity
     private void onLocationChanged(final LatLng latlng) {
         Log.e("LOCATION", latlng.toString());
         this.lastLocation = latlng;
+        this.currentMatchFragment.locationUpdate();
     }
 
     public LatLng getLastLocation() {
@@ -209,6 +213,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onCreateButtonPressed(Integer duration, String score, String winner, String loser) {
-        Log.e("TEST", duration+ " " + score +" "+ winner + "  " + loser);
+        if(this.lastLocation == null) {
+            Toast.makeText(this, "Please wait for location", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        MatchEntity matchEntity = new MatchEntity(0, this.lastLocation.latitude, this.lastLocation.longitude, duration, score, winner, loser);
+        this.db.matchEntityDao().insertAll(matchEntity);
     }
 }

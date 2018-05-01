@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import ph.pey.finalproject.MainActivity;
 import ph.pey.finalproject.R;
 
@@ -35,6 +37,17 @@ public class CreateMatchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    public void locationUpdate() {
+        if(mainActivity != null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ((TextView) getView().findViewById(R.id.location_textview)).append(" " + mainActivity.reverseGeoCodeLastLocation());
+                }
+            }).start();
+        }
     }
 
     @Override
