@@ -62,14 +62,8 @@ public class CreateMatchFragment extends Fragment {
             }
         });
 
-        if(mainActivity != null) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    ((TextView) v.findViewById(R.id.location_textview)).append(" " + mainActivity.reverseGeoCodeLastLocation());
-                }
-            }).start();
-        }
+        ((TextView) v.findViewById(R.id.location_textview)).append(" " + mainActivity.reverseGeoCodeLastLocation());
+
         return v;
     }
 

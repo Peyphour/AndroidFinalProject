@@ -3,7 +3,6 @@ package ph.pey.finalproject;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.arch.persistence.room.Room;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -18,6 +17,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,17 +33,20 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import ph.pey.finalproject.fragment.CreateMatchFragment;
+import ph.pey.finalproject.fragment.MatchFragment;
+import ph.pey.finalproject.fragment.MatchContent;
 import ph.pey.finalproject.sql.AppDatabase;
 import ph.pey.finalproject.sql.MatchEntity;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, CreateMatchFragment.Listener {
+        implements NavigationView.OnNavigationItemSelectedListener, CreateMatchFragment.Listener, MatchFragment.OnListFragmentInteractionListener {
 
     private final int PERMISSION_REQUEST = 2;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -108,6 +111,14 @@ public class MainActivity extends AppCompatActivity
             return;
         }
         startLocationTracking();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loadMatches();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_content_layout, MatchFragment.newInstance(1)).commit();
+            }
+        }).start();
     }
 
     @Override
@@ -186,7 +197,9 @@ public class MainActivity extends AppCompatActivity
     private void onLocationChanged(final LatLng latlng) {
         Log.e("LOCATION", latlng.toString());
         this.lastLocation = latlng;
-        this.currentMatchFragment.locationUpdate();
+
+        if(this.currentMatchFragment != null)
+            this.currentMatchFragment.locationUpdate();
     }
 
     public LatLng getLastLocation() {
@@ -196,19 +209,34 @@ public class MainActivity extends AppCompatActivity
     public String reverseGeoCodeLastLocation() {
         if(this.lastLocation == null)
             return "no location";
+        return getAddressFromLocation(this.lastLocation);
+    }
 
+    public String getAddressFromLocation(LatLng location) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
-            List<Address> addressList = geocoder.getFromLocation(this.lastLocation.latitude, this.lastLocation.longitude, 1);
+            List<Address> addressList = geocoder.getFromLocation(location.latitude, location.longitude, 1);
             if(addressList == null || addressList.size() == 0) {
                 return "no location";
             }
-            return addressList.get(0).toString();
+            ArrayList<String> addressFragments = new ArrayList<>();
+
+            for(int i = 0; i <= addressList.get(0).getMaxAddressLineIndex(); i++) {
+                addressFragments.add(addressList.get(0).getAddressLine(i));
+            }
+
+            return TextUtils.join("\n", addressFragments);
         } catch (IOException e) {
             Log.e("ERROR", e.getMessage());
         }
-
         return "no location";
+    }
+
+    private void loadMatches() {
+        MatchContent.clear();
+        for(MatchEntity matchEntity : this.db.matchEntityDao().getAll()) {
+            MatchContent.addItem(matchEntity);
+        }
     }
 
     @Override
@@ -217,7 +245,20 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(this, "Please wait for location", Toast.LENGTH_SHORT).show();
             return;
         }
-        MatchEntity matchEntity = new MatchEntity(0, this.lastLocation.latitude, this.lastLocation.longitude, duration, score, winner, loser);
-        this.db.matchEntityDao().insertAll(matchEntity);
+        final MatchEntity matchEntity = new MatchEntity(0, this.lastLocation.latitude, this.lastLocation.longitude, duration, score, winner, loser);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                db.matchEntityDao().insertAll(matchEntity);
+                loadMatches();
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_content_layout, MatchFragment.newInstance(1)).commit();
+            }
+        }).start();
+    }
+
+    @Override
+    public void onListFragmentInteraction(MatchEntity item) {
+
     }
 }
