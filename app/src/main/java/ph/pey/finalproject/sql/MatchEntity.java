@@ -2,6 +2,9 @@ package ph.pey.finalproject.sql;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverter;
+
+import com.google.gson.Gson;
 
 
 @Entity
@@ -20,7 +23,9 @@ public class MatchEntity {
 
     private String loser;
 
-    public MatchEntity(int uid, Double latitude, Double longitude, int durationInMinutes, String score, String winner, String loser) {
+    private String[] picturesPath;
+
+    public MatchEntity(int uid, Double latitude, Double longitude, int durationInMinutes, String score, String winner, String loser, String[] picturesPath) {
         this.uid = uid;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -28,6 +33,7 @@ public class MatchEntity {
         this.score = score;
         this.winner = winner;
         this.loser = loser;
+        this.picturesPath = picturesPath;
     }
 
     public int getUid() {
@@ -86,4 +92,24 @@ public class MatchEntity {
         this.loser = loser;
     }
 
+    public String[] getPicturesPath() {
+        return picturesPath;
+    }
+
+    public void setPicturesPath(String[] picturesPath) {
+        this.picturesPath = picturesPath;
+    }
+
+    public static class ArrayTypeConverter {
+
+        @TypeConverter
+        public static String[] fromString(String value) {
+            return new Gson().fromJson(value, String[].class);
+        }
+
+        @TypeConverter
+        public static String fromArray(String[] value) {
+            return new Gson().toJson(value);
+        }
+    }
 }

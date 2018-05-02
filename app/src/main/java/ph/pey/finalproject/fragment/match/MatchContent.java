@@ -1,4 +1,4 @@
-package ph.pey.finalproject.fragment;
+package ph.pey.finalproject.fragment.match;
 
 import java.util.ArrayList;
 import java.util.HashMap;

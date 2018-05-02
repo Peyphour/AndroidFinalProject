@@ -1,18 +1,14 @@
-package ph.pey.finalproject.fragment;
+package ph.pey.finalproject.fragment.match;
 
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import ph.pey.finalproject.MainActivity;
 import ph.pey.finalproject.R;
@@ -84,11 +80,11 @@ public class CreateMatchFragment extends Fragment {
             this.listener.onCreateButtonPressed(Integer.valueOf(((EditText)getView().findViewById(R.id.duration_input)).getText().toString()),
                     ((EditText)getView().findViewById(R.id.score_input)).getText().toString(),
                     ((EditText)getView().findViewById(R.id.winner_input)).getText().toString(),
-                    ((EditText)getView().findViewById(R.id.loser_input)).getText().toString());
+                    ((EditText)getView().findViewById(R.id.loser_input)).getText().toString(), new String[]{});
         }
     }
 
     public interface Listener {
-        void onCreateButtonPressed(Integer duration, String score, String winner, String loser);
+        void onCreateButtonPressed(Integer duration, String score, String winner, String loser, String[] picturesPath);
     }
 }

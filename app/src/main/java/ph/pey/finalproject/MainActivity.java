@@ -37,9 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import ph.pey.finalproject.fragment.CreateMatchFragment;
-import ph.pey.finalproject.fragment.MatchFragment;
-import ph.pey.finalproject.fragment.MatchContent;
+import ph.pey.finalproject.fragment.match.CreateMatchFragment;
+import ph.pey.finalproject.fragment.match.MatchFragment;
+import ph.pey.finalproject.fragment.match.MatchContent;
+import ph.pey.finalproject.fragment.match.pictures.PictureHolder;
 import ph.pey.finalproject.sql.AppDatabase;
 import ph.pey.finalproject.sql.MatchEntity;
 
@@ -239,12 +240,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onCreateButtonPressed(Integer duration, String score, String winner, String loser) {
+    public void onCreateButtonPressed(Integer duration, String score, String winner, String loser, String[] picturesPath) {
         if(this.lastLocation == null) {
             Toast.makeText(this, "Please wait for location", Toast.LENGTH_SHORT).show();
             return;
         }
-        final MatchEntity matchEntity = new MatchEntity(0, this.lastLocation.latitude, this.lastLocation.longitude, duration, score, winner, loser);
+        final MatchEntity matchEntity = new MatchEntity(0, this.lastLocation.latitude, this.lastLocation.longitude, duration, score, winner, loser, picturesPath);
 
         new Thread(new Runnable() {
             @Override
@@ -258,6 +259,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListFragmentInteraction(MatchEntity item) {
-
+        PictureHolder.clear();
+        for(String path: item.getPicturesPath())
+            PictureHolder.addItem(new PictureHolder.Picture("0", path));
     }
 }

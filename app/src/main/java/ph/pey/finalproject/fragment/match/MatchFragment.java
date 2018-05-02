@@ -1,4 +1,4 @@
-package ph.pey.finalproject.fragment;
+package ph.pey.finalproject.fragment.match;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -54,7 +54,7 @@ public class MatchFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyMatchRecyclerViewAdapter(MatchContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MatchRecyclerViewAdapter(MatchContent.ITEMS, mListener));
         }
         return view;
     }

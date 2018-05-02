@@ -1,4 +1,4 @@
-package ph.pey.finalproject.fragment;
+package ph.pey.finalproject.fragment.match;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,12 +14,12 @@ import ph.pey.finalproject.sql.MatchEntity;
 
 import java.util.List;
 
-public class MyMatchRecyclerViewAdapter extends RecyclerView.Adapter<MyMatchRecyclerViewAdapter.ViewHolder> {
+public class MatchRecyclerViewAdapter extends RecyclerView.Adapter<MatchRecyclerViewAdapter.ViewHolder> {
 
     private final List<MatchEntity> mValues;
     private final MainActivity mListener;
 
-    public MyMatchRecyclerViewAdapter(List<MatchEntity> items, MainActivity listener) {
+    public MatchRecyclerViewAdapter(List<MatchEntity> items, MainActivity listener) {
         mValues = items;
         mListener = listener;
     }
