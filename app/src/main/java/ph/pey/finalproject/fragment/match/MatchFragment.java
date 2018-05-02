@@ -1,3 +1,8 @@
+/**
+ * By Bertrand NANCY and Kevin NUNES
+ * Copyright 2018
+ */
+
 package ph.pey.finalproject.fragment.match;
 
 import android.content.Context;

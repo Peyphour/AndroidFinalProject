@@ -1,3 +1,8 @@
+/**
+ * By Bertrand NANCY and Kevin NUNES
+ * Copyright 2018
+ */
+
 package ph.pey.finalproject.sql;
 
 import android.arch.persistence.room.Dao;
