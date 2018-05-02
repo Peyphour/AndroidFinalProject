@@ -9,7 +9,7 @@ import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.TypeConverter;
 import android.arch.persistence.room.TypeConverters;
 
-@Database(entities = {MatchEntity.class}, version = 1)
+@Database(entities = {MatchEntity.class}, version = 2)
 @TypeConverters({MatchEntity.ArrayTypeConverter.class})
 public abstract class AppDatabase extends RoomDatabase {
     public abstract MatchEntityDao matchEntityDao();

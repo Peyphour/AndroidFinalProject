@@ -1,15 +1,13 @@
 package ph.pey.finalproject.fragment.match.pictures;
 
-import android.net.Uri;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import ph.pey.finalproject.R;
-import ph.pey.finalproject.fragment.match.pictures.MatchPicturesFragment.OnListFragmentInteractionListener;
 import ph.pey.finalproject.fragment.match.pictures.PictureHolder.Picture;
 
 import java.util.List;
@@ -17,11 +15,9 @@ import java.util.List;
 public class MatchPicturesRecyclerViewAdapter extends RecyclerView.Adapter<MatchPicturesRecyclerViewAdapter.ViewHolder> {
 
     private final List<Picture> mValues;
-    private final OnListFragmentInteractionListener mListener;
 
-    public MatchPicturesRecyclerViewAdapter(List<Picture> items, OnListFragmentInteractionListener listener) {
+    public MatchPicturesRecyclerViewAdapter(List<Picture> items) {
         mValues = items;
-        mListener = listener;
     }
 
     @Override
@@ -34,18 +30,7 @@ public class MatchPicturesRecyclerViewAdapter extends RecyclerView.Adapter<Match
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.imageView.setImageURI(new Uri.Builder().appendPath(mValues.get(position).path).build());
-
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
-                }
-            }
-        });
+        holder.imageView.setImageBitmap(BitmapFactory.decodeFile(mValues.get(position).path));
     }
 
     @Override

@@ -2,13 +2,18 @@ package ph.pey.finalproject.fragment.match;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.io.File;
+import java.util.ArrayList;
 
 import ph.pey.finalproject.MainActivity;
 import ph.pey.finalproject.R;
@@ -22,6 +27,7 @@ public class CreateMatchFragment extends Fragment {
 
     private Listener listener;
     private MainActivity mainActivity;
+    private ArrayList<String> pictures = new ArrayList<>();
 
     public CreateMatchFragment() {
         // Required empty public constructor
@@ -58,6 +64,12 @@ public class CreateMatchFragment extends Fragment {
                 onCreateButtonClick();
             }
         });
+        v.findViewById(R.id.take_pic_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onCreatePictureClick();
+            }
+        });
 
         ((TextView) v.findViewById(R.id.location_textview)).append(" " + mainActivity.reverseGeoCodeLastLocation());
 
@@ -80,11 +92,20 @@ public class CreateMatchFragment extends Fragment {
             this.listener.onCreateButtonPressed(Integer.valueOf(((EditText)getView().findViewById(R.id.duration_input)).getText().toString()),
                     ((EditText)getView().findViewById(R.id.score_input)).getText().toString(),
                     ((EditText)getView().findViewById(R.id.winner_input)).getText().toString(),
-                    ((EditText)getView().findViewById(R.id.loser_input)).getText().toString(), new String[]{});
+                    ((EditText)getView().findViewById(R.id.loser_input)).getText().toString(), this.pictures.toArray(new String[this.pictures.size()]));
+        }
+    }
+
+    public void onCreatePictureClick() {
+        if(this.listener != null) {
+            pictures.add(this.listener.createPicture().getAbsolutePath());
         }
     }
 
     public interface Listener {
         void onCreateButtonPressed(Integer duration, String score, String winner, String loser, String[] picturesPath);
+        File createPicture();
     }
+
+
 }
