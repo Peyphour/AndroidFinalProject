@@ -195,7 +195,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void onLocationChanged(final LatLng latlng) {
-        Log.e("LOCATION", latlng.toString());
         this.lastLocation = latlng;
 
         if(this.currentMatchFragment != null)

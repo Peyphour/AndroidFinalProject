@@ -10,16 +10,10 @@ import com.google.android.gms.maps.model.LatLng;
 
 import ph.pey.finalproject.MainActivity;
 import ph.pey.finalproject.R;
-import ph.pey.finalproject.fragment.MatchFragment.OnListFragmentInteractionListener;
 import ph.pey.finalproject.sql.MatchEntity;
 
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link MatchEntity} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class MyMatchRecyclerViewAdapter extends RecyclerView.Adapter<MyMatchRecyclerViewAdapter.ViewHolder> {
 
     private final List<MatchEntity> mValues;
@@ -41,7 +35,11 @@ public class MyMatchRecyclerViewAdapter extends RecyclerView.Adapter<MyMatchRecy
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).getUid() + "");
-        holder.mContentView.setText(mListener.getAddressFromLocation(new LatLng(mValues.get(position).getLatitude(), mValues.get(position).getLongitude())));
+        holder.mLocationView.setText(mListener.getAddressFromLocation(new LatLng(mValues.get(position).getLatitude(), mValues.get(position).getLongitude())));
+        holder.mDurationView.setText(mValues.get(position).getDurationInMinutes() + "min");
+        holder.score.setText(mValues.get(position).getScore());
+        holder.winner.setText(mValues.get(position).getWinner());
+        holder.loser.setText(mValues.get(position).getLoser());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,19 +61,27 @@ public class MyMatchRecyclerViewAdapter extends RecyclerView.Adapter<MyMatchRecy
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mIdView;
-        public final TextView mContentView;
+        public final TextView mLocationView;
+        public final TextView mDurationView;
+        public final TextView score;
+        public final TextView winner;
+        public final TextView loser;
         public MatchEntity mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mIdView = view.findViewById(R.id.id);
+            mLocationView = view.findViewById(R.id.location);
+            mDurationView = view.findViewById(R.id.duration);
+            score = view.findViewById(R.id.score);
+            winner = view.findViewById(R.id.winner);
+            loser = view.findViewById(R.id.loser);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mLocationView.getText() + "'";
         }
     }
 }
