@@ -12,20 +12,14 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -47,16 +41,15 @@ import java.util.Locale;
 
 import ph.pey.finalproject.fragment.match.CreateMatchFragment;
 import ph.pey.finalproject.fragment.match.MatchFragment;
-import ph.pey.finalproject.fragment.match.MatchContent;
-import ph.pey.finalproject.fragment.match.pictures.MatchPicturesFragment;
-import ph.pey.finalproject.fragment.match.pictures.PictureHolder;
+import ph.pey.finalproject.fragment.match.MatchContentHolder;
+import ph.pey.finalproject.fragment.pictures.MatchPicturesFragment;
+import ph.pey.finalproject.fragment.pictures.PictureHolder;
 import ph.pey.finalproject.sql.AppDatabase;
 import ph.pey.finalproject.sql.MatchEntity;
 
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, CreateMatchFragment.Listener, MatchFragment.OnListFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements CreateMatchFragment.Listener, MatchFragment.OnListFragmentInteractionListener, BackendManager.BackendResponseListener {
 
     private final int PERMISSION_REQUEST = 2;
     private static final int REQUEST_TAKE_PHOTO = 1;
@@ -69,6 +62,8 @@ public class MainActivity extends AppCompatActivity
 
     private LatLng lastLocation;
     private CreateMatchFragment currentMatchFragment;
+
+    private BackendManager backendManager;
 
 
     @Override
@@ -90,15 +85,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         mLocationCallback = new LocationCallback() {
@@ -117,6 +103,8 @@ public class MainActivity extends AppCompatActivity
         db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "db")
                 .fallbackToDestructiveMigration()
                 .build();
+
+        backendManager = new BackendManager(this, this);
 
         if ((ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED)
@@ -139,63 +127,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        if(getSupportFragmentManager().findFragmentByTag(CREATE_FRAGMENT_TAG) != null || getSupportFragmentManager().findFragmentByTag(PICTURES_FRAGMENT_TAG) != null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.main_content_layout, MatchFragment.newInstance(1), MAIN_FRAGMENT_TAG).commit();
         } else {
-            if(getSupportFragmentManager().findFragmentByTag(CREATE_FRAGMENT_TAG) != null || getSupportFragmentManager().findFragmentByTag(PICTURES_FRAGMENT_TAG) != null) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_content_layout, MatchFragment.newInstance(1), MAIN_FRAGMENT_TAG).commit();
-            } else {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     @SuppressLint("MissingPermission")
@@ -248,10 +184,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadMatches() {
-        MatchContent.clear();
+        MatchContentHolder.clear();
         for(MatchEntity matchEntity : this.db.matchEntityDao().getAll()) {
-            MatchContent.addItem(matchEntity);
+            MatchContentHolder.addItem(matchEntity);
         }
+        backendManager.getAllMatches();
     }
 
     @Override
@@ -266,8 +203,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 db.matchEntityDao().insertAll(matchEntity);
-                loadMatches();
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_content_layout, MatchFragment.newInstance(1), MAIN_FRAGMENT_TAG).commit();
+                backendManager.saveMatch(matchEntity);
             }
         }).start();
     }
@@ -320,5 +256,23 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return null;
+    }
+
+    @Override
+    public void allMatches(MatchEntity[] matchEntities) {
+        MatchContentHolder.clear();
+        for(MatchEntity matchEntity : matchEntities)
+            MatchContentHolder.addItem(matchEntity);
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_content_layout, MatchFragment.newInstance(1), MAIN_FRAGMENT_TAG).commit();
+    }
+
+    @Override
+    public void matchSaved() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loadMatches();
+            }
+        }).start();
     }
 }

@@ -1,4 +1,4 @@
-package ph.pey.finalproject.fragment.match.pictures;
+package ph.pey.finalproject.fragment.pictures;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ph.pey.finalproject.R;
-import ph.pey.finalproject.fragment.match.pictures.PictureHolder.Picture;
 
 public class MatchPicturesFragment extends Fragment {
 

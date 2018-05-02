@@ -8,7 +8,7 @@ import java.util.Map;
 import ph.pey.finalproject.sql.MatchEntity;
 
 
-public class MatchContent {
+public class MatchContentHolder {
 
 
     public static final List<MatchEntity> ITEMS = new ArrayList<>();

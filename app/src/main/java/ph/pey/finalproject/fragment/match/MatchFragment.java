@@ -54,7 +54,7 @@ public class MatchFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MatchRecyclerViewAdapter(MatchContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MatchRecyclerViewAdapter(MatchContentHolder.ITEMS, mListener));
         }
         return view;
     }

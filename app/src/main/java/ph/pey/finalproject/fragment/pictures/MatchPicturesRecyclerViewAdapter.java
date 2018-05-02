@@ -1,4 +1,4 @@
-package ph.pey.finalproject.fragment.match.pictures;
+package ph.pey.finalproject.fragment.pictures;
 
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import ph.pey.finalproject.R;
-import ph.pey.finalproject.fragment.match.pictures.PictureHolder.Picture;
+import ph.pey.finalproject.fragment.pictures.PictureHolder.Picture;
 
 import java.util.List;
 
